@@ -1,12 +1,8 @@
 #!/usr/bin/env ruby
 
-app_dir = File.dirname(__FILE__)
+%w{input_parser node link node_command}.each { |inc| require File.dirname(__FILE__) + "/lib/#{inc}.rb" }
 
-%w{input_parser node link node_command}.each do |inc|
-  require app_dir + "/lib/#{inc}.rb"
-end
-
-InputParser.parse_file(app_dir + '/network_description.txt')
+InputParser.parse_file(File.dirname(__FILE__) + '/network_description.txt')
 
 Link.give_links_to_nodes
 
