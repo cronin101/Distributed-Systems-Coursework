@@ -35,7 +35,7 @@ class Node
       @links.delete(node_name)
       # "If a link becomes unavailable, set cost to Infinity"
       @routing_table.each do |k, v|
-        @routing_table[k]= INFINITY if v.first = node_name
+        @routing_table[k] = INFINITY if v.first == node_name
       end
       broadcast_table if @broadcasting
     end
