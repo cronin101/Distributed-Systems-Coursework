@@ -12,19 +12,11 @@ class NodeCommand
     @@queue << self
   end
 
-  def inspect
-    puts "<#{self.class}> { target: #{@target}, action: #{@action} }"
-  end
-
-  def self.queue
-    @@queue
-  end
-
   def self.trigger_actions
-    queue.each do |job|
+    @@queue.each do |job|
       if job.action == :send
         Node.find_by_name(job.target).broadcast_table
-        queue.delete(job)
+        @@queue.delete(job)
       end
     end
   end

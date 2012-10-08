@@ -85,10 +85,6 @@ class Node
     broadcast_table if changes && @broadcasting
   end
 
-  def inspect
-    puts "<#{self.class}> { name: #{@name},\n\t addresses: #{@addresses},\n\t links: #{@links}, \n\t routing_table: #{@routing_table}\n\t }"
-  end
-
   def self.find_by_name(name)
     all.select { |node| node.name == name }.first
   end

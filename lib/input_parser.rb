@@ -6,7 +6,6 @@ class InputParser
   end
 
   def self.parse_line(line)
-
       matches = line.scan /\w+/
       object_type = matches.shift
 
@@ -25,7 +24,6 @@ class InputParser
         target = matches.first
         NodeCommand.new(target, :send).enqueue
       end
-
   end
 
 end

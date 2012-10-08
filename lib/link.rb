@@ -12,15 +12,11 @@ class Link
   end
 
   def self.give_links_to_nodes
-    all.each do |link|
+    @@instances.each do |link|
       e1, e2 = link.endpoints.take(2)
       Node.find_by_name(e1).add_link(e2)
       Node.find_by_name(e2).add_link(e1)
     end
-  end
-
-  def self.all
-    @@instances
   end
 
 end
