@@ -13,7 +13,7 @@ class NodeCommand
 
   def self.trigger_actions
     @@queue.each do |job|
-      Node.find_by_name(job.target).broadcast_table if job.action == :send
+      Node.find_by_name(job.target).send(:broadcast_table) if job.action == :send
       @@queue.delete(job)
     end
   end
