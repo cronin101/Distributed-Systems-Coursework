@@ -4,8 +4,6 @@ class Node
   attr_reader :name, :addresses, :links, :routing_table
   attr_accessor :broadcasting
 
-  INFINITY = +1.0/0.0
-
   def initialize(name, addresses)
     @name = name
     @routing_table = Hash.new
@@ -27,17 +25,6 @@ class Node
   def add_link(node_name)
     unless has_link?(node_name)
       @links << node_name
-    end
-  end
-
-  def remove_link(node_name)
-    if has_link?(node_name)
-      @links.delete(node_name)
-      # "If a link becomes unavailable, set cost to Infinity"
-      @routing_table.each do |k, v|
-        @routing_table[k] = INFINITY if v.first == node_name
-      end
-      broadcast_table if @broadcasting
     end
   end
 
@@ -63,22 +50,18 @@ class Node
   def receive_routing_table(sender, table)
     puts "receive #{@name} #{sender} " + table.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(" ")
     changes = false
+    update_row = ->(k,v){ (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
 
     table.each do |k, v|
-      # Ignore information about yourself
-      next if k == @name
-
-      update_row = ->(){ (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
-
       # "If there is a new destination, add that row to the table"
       if @routing_table[k].nil?
-        update_row.call
+        update_row.call(k,v)
       # "If there is a lower cost route to an existing node, update the appropriate row"
       elsif (v.last + 1) < @routing_table[k].last
-        update_row.call
+        update_row.call(k,v)
       # "If the table was recieved on link N, replace all differing rows with N as the link"
       elsif @routing_table[k].first == sender && @routing_table[k].last != (v.last + 1)
-        update_row.call
+        update_row.call(k,v)
       end
     end
 
