@@ -1,7 +1,6 @@
 class Link
-  @@instances = []
-
   attr_reader :endpoints
+  @@instances = []
 
   def initialize(endpoints)
     @endpoints = endpoints

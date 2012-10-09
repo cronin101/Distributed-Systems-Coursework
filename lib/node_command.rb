@@ -1,7 +1,6 @@
 class NodeCommand
-  @@queue = []
-
   attr_reader :target, :action
+  @@queue = []
 
   def initialize(target, action)
     @target = target

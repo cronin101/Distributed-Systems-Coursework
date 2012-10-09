@@ -1,7 +1,6 @@
 class Node
-  @@instances = []
-
   attr_reader :name, :addresses, :links, :routing_table
+  @@instances = []
 
   def initialize(name, addresses)
     @name = name
