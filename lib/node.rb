@@ -2,12 +2,10 @@ class Node
   @@instances = []
 
   attr_reader :name, :addresses, :links, :routing_table
-  attr_accessor :broadcasting
 
   def initialize(name, addresses)
     @name = name
     @routing_table = Hash.new
-    @broadcasting = false
     (@addresses = Array(addresses)).each { |local| @routing_table[local] = ['local',0] }
     @links = []
   end
@@ -49,7 +47,7 @@ class Node
               # "If the table was recieved on link N, replace all differing rows with N as the link"
             (@routing_table[k].first == sender && @routing_table[k].last != (v.last + 1))
     end
-    broadcast_table if changes && @broadcasting
+    broadcast_table if changes
   end
 
   def self.find_by_name(name)

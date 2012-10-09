@@ -4,8 +4,5 @@
 InputParser.parse_file(File.dirname(__FILE__) + '/network_description.txt')
 Link.give_links_to_nodes
 
-# From now on, all changes to the routing table are broadcast
-Node.all.each { |node| node.broadcasting = true }
 NodeCommand.trigger_actions
-
 Node.all.map(&:show_table)
