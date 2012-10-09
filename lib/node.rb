@@ -37,7 +37,7 @@ class Node
   end
 
   def receive_routing_table(sender, table)
-    puts "receive #{@name} #{sender} " + table.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(" ")
+    puts "receive #{@name} #{sender} #{parens_table(table)}"
     changes = false
     update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
 
