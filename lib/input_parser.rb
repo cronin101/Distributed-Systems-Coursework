@@ -6,9 +6,8 @@ class InputParser
 
   def self.parse_line(line)
       matches = line.scan /\w+/
-      object_type = matches.shift
 
-      case object_type
+      case (object_type = matches.shift)
       when 'node'
         Node.new((name = matches.shift), (addresses = matches)).store
       when 'link'
