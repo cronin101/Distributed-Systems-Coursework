@@ -16,20 +16,16 @@ class Node
     @@instances << self
   end
 
-  def has_link?(node_name)
-    @links.include?(node_name)
-  end
-
   def add_link(node_name)
-    @links << node_name unless has_link?(node_name)
+    @links << node_name unless @links.include?(node_name)
   end
 
-  def broadcast_table
-    @links.each { |link| send_routing_table(Node.find_by_name(link)) }
+  def broadcast_table # Messages to links broadcast in a random order
+    @links.shuffle.each { |link| send_routing_table(Node.find_by_name(link)) }
   end
 
-  def parens_table(table_hash)
-    table_hash.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(" ")
+  def parens_table(table_hash) # Routing table in (addr|link|cost) format sorted with ascending addr.
+    table_hash.sort { |a, b| a[0] <=> b[0] }.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(" ")
   end
 
   def show_table
@@ -44,7 +40,7 @@ class Node
   def receive_routing_table(sender, table)
     puts "receive #{@name} #{sender} " + table.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(" ")
     changes = false
-    update_row = ->(k,v){ (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
+    update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
 
     table.each do |k, v|
               # "If there is a new destination, add that row to the table"
