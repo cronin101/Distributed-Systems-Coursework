@@ -40,12 +40,9 @@ class Node
     update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
 
     table.each do |k, v|
-              # "If there is a new destination, add that row to the table"
-        update_row.call(k,v) if (@routing_table[k].nil?) ||
-              # "If there is a lower cost route to an existing node, update the appropriate row"
-            ((v.last + 1) < @routing_table[k].last) ||
-              # "If the table was recieved on link N, replace all differing rows with N as the link"
-            (@routing_table[k].first == sender && @routing_table[k].last != (v.last + 1))
+        update_row.call(k,v) if (@routing_table[k].nil?) || # "If there is a new destination"
+          ((v.last + 1) < @routing_table[k].last) || # "If there is a lower cost route to an existing node"
+          (@routing_table[k].first == sender && @routing_table[k].last != (v.last + 1))# "If recieved from N, [and N is the link]"
     end
     broadcast_table if changes
   end
