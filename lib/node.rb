@@ -35,15 +35,12 @@ class Node
 
   def receive_routing_table(sender, table)
     puts "receive #{@name} #{sender} #{parens_table(table)}"
-    changes = false
-    update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) && (changes = true) }
+    update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) && (true) }
 
-    table.each do |k, v|
-        update_row.call(k,v) if (@routing_table[k].nil?) || # "If there is a new destination"
+    broadcast_table if table.map { |k, v| update_row.call(k,v) if (@routing_table[k].nil?) || # "If there is a new destination"
           ((v.last + 1) < @routing_table[k].last) || # "If there is a lower cost route to an existing node"
           (@routing_table[k].first == sender && @routing_table[k].last != (v.last + 1))# "If recieved from N, [and N is the link]"
-    end
-    broadcast_table if changes
+    }.any?
   end
 
   def self.find_by_name(name)
