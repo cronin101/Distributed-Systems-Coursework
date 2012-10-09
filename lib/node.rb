@@ -7,15 +7,13 @@ class Node
   def initialize(name, addresses)
     @name = name
     @routing_table = Hash.new
-    @addresses = Array(addresses)
     @broadcasting = false
-    @addresses.each { |local| @routing_table[local] = ['local',0] }
+    (@addresses = Array(addresses)).each { |local| @routing_table[local] = ['local',0] }
     @links = []
   end
 
   def store
     @@instances << self
-    self
   end
 
   def has_link?(node_name)
@@ -23,15 +21,11 @@ class Node
   end
 
   def add_link(node_name)
-    unless has_link?(node_name)
-      @links << node_name
-    end
+    @links << node_name unless has_link?(node_name)
   end
 
   def broadcast_table
-    @links.each do |link|
-      send_routing_table(Node.find_by_name(link))
-    end
+    @links.each { |link| send_routing_table(Node.find_by_name(link)) }
   end
 
   def parens_table(table_hash)
@@ -60,7 +54,6 @@ class Node
               # "If the table was recieved on link N, replace all differing rows with N as the link"
             (@routing_table[k].first == sender && @routing_table[k].last != (v.last + 1))
     end
-
     broadcast_table if changes && @broadcasting
   end
 
