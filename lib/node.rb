@@ -21,7 +21,11 @@ class Node
   end
 
   def broadcast_table # Messages to links broadcast in a random order
-    @links.shuffle.each { |link| send_routing_table(Node.find_by_name(link)) }
+    @links.shuffle.each do |link|
+      target = Node.find_by_name(link)
+      puts "send #{@name} #{target.name} #{parens_table(@routing_table)}"
+      target.send(:receive_routing_table, *[@name, @routing_table])
+    end
   end
 
   def parens_table(table_hash) # Routing table in (addr|link|cost) format sorted with ascending addr.
@@ -30,11 +34,6 @@ class Node
 
   def show_table
     puts "table #{@name} #{parens_table(@routing_table)}"
-  end
-
-  def send_routing_table(target)
-    puts "send #{@name} #{target.name} " + parens_table(@routing_table)
-    target.receive_routing_table(@name, @routing_table)
   end
 
   def receive_routing_table(sender, table)
