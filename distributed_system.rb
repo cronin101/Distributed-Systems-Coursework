@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 class Node
   attr_reader :name, :addresses, :links, :routing_table
   @@instances = []
@@ -44,11 +46,7 @@ class Node
       # The link responsible for an existing route has updated information
       should_update ||= @route_table[target][:link] == sender && new_cost != @route_table[target][:cost]
 
-      if should_update
-        @route_table[target] = { :link => sender, :cost => new_cost }
-      else
-        false
-      end
+      @route_table[target] = { :link => sender, :cost => new_cost } if should_update
     end
 
     broadcast_table if changes.any?
@@ -61,5 +59,70 @@ class Node
   def self.all
     @@instances
   end
-
 end
+
+class Link
+  attr_reader :endpoints
+  @@instances = []
+
+  def initialize(endpoints)
+    @endpoints = endpoints
+  end
+
+  def store
+    @@instances << self
+  end
+
+  def self.give_links_to_nodes
+    @@instances.each do |link|
+      e1, e2 = link.endpoints.take(2)
+      Node.find_by_name(e1).add_link(e2)
+      Node.find_by_name(e2).add_link(e1)
+    end
+  end
+end
+
+class NodeCommand
+  attr_reader :target, :action
+  @@queue = []
+
+  def initialize(target, action)
+    @target = target
+    @action = action
+  end
+
+  def enqueue
+    @@queue << self
+  end
+
+  def self.trigger_actions
+    @@queue.each do |job|
+      Node.find_by_name(job.target).send(:broadcast_table) if job.action == :send
+      @@queue.delete(job)
+    end
+  end
+end
+
+class InputParser
+  def self.parse_file(filename)
+    File.open(filename).readlines.each { |line| parse_line(line) }
+  end
+
+  def self.parse_line(line)
+    matches = line.scan /\w+/
+    case (object_type = matches.shift)
+    when 'node'
+      Node.new((name = matches.shift), (addresses = matches)).store
+    when 'link'
+      Link.new((endpoints = matches.take(2))).store
+    when 'send'
+      NodeCommand.new((target = matches.first), :send).enqueue
+    end
+  end
+end
+
+InputParser.parse_file(File.dirname(__FILE__) + '/network_description.txt')
+Link.give_links_to_nodes
+
+NodeCommand.trigger_actions
+Node.all.map(&:show_table)
