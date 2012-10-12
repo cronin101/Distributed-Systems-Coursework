@@ -19,7 +19,8 @@ class Node
     @links << node_name unless @links.include?(node_name)
   end
 
-  def broadcast_table # Messages to links broadcast in a random order
+  def broadcast_table
+    # Messages to links broadcast in a random order
     @links.shuffle.each do |link|
       target = Node.find_by_name(link)
       puts "send #{@name} #{target.name} #{parens_table(@route_table)}"
@@ -34,6 +35,7 @@ class Node
   end
 
   def show_table
+    # Prints the final route_table held by a node
     puts "table #{@name} #{parens_table(@route_table)}"
   end
 
@@ -53,7 +55,7 @@ class Node
       # The link responsible for an existing route has updated information
       should_update ||= @route_table[target][:link] == sender && new_cost != @route_table[target][:cost]
 
-      # Update action
+      # Update action returns non-false so therefore is detected by .any?
       @route_table[target] = { :link => sender, :cost => new_cost } if should_update
     end
 
@@ -111,6 +113,7 @@ class NodeCommand
 end
 
 class InputParser
+  # Takes in a filename corresponding to description file and builds up the structure of the network in objects
   def self.parse_file(filename)
     File.open(filename).readlines.each { |line| parse_line(line) }
   end
