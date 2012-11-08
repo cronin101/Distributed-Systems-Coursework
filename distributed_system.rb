@@ -19,12 +19,12 @@ class Node
     @links << node_name unless @links.include?(node_name)
   end
 
-  def broadcast_table(sender=[])
-    # Messages to links broadcast in a random order
-    (@links - sender).shuffle.each do |link|
+  def broadcast_table(to_skip=[])
+    # Messages to links broadcast in a random order, skips any nodes optionally given in to_skip.
+    (@links - to_skip).shuffle.each do |link|
       target = Node.find_by_name(link)
       puts "send #{@name} #{target.name} #{parens_table(@route_table)}"
-      # The target has the 'recieve_route_table' method invoked with params of sender's name and table.
+      # The target has the 'recieve_route_table' method invoked with params of to_skip's name and table.
       target.send(:receive_route_table, *[@name, @route_table])
     end
   end
