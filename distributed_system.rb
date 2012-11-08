@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-
+# Distributed Systems Coursework, Student: s0925570
 class Node
   attr_reader :name, :addresses, :links, :routing_table
   @@instances = []
@@ -19,9 +19,9 @@ class Node
     @links << node_name unless @links.include?(node_name)
   end
 
-  def broadcast_table
+  def broadcast_table(sender=[])
     # Messages to links broadcast in a random order
-    @links.shuffle.each do |link|
+    (@links - sender).shuffle.each do |link|
       target = Node.find_by_name(link)
       puts "send #{@name} #{target.name} #{parens_table(@route_table)}"
       # The target has the 'recieve_route_table' method invoked with params of sender's name and table.
@@ -41,26 +41,24 @@ class Node
 
   def receive_route_table(sender, table)
     puts "receive #{@name} #{sender} #{parens_table(table)}"
-
     changes = table.map do |target, route|
       new_cost = route[:cost] + 1
       # Update row if any of the following:
-
       # New destination not previously in routing table
       should_update = @route_table[target].nil?
-
       # Lower cost link found for existing route
       should_update ||= new_cost < @route_table[target][:cost]
-
       # The link responsible for an existing route has updated information
       should_update ||= @route_table[target][:link] == sender && new_cost != @route_table[target][:cost]
-
       # Update action returns non-false so therefore is detected by .any?
       @route_table[target] = { :link => sender, :cost => new_cost } if should_update
     end
-
-    #If any update took place, the table should be rebroadcast
-    broadcast_table if changes.any?
+    # If any update took place, the table should be rebroadcast
+    if $skip_sender
+      broadcast_table([sender]) if changes.any?
+    else
+      broadcast_table if changes.any?
+    end
   end
 
   def self.find_by_name(name)
@@ -132,8 +130,8 @@ class InputParser
 end
 
 # Execution starts here
-InputParser.parse_file(File.dirname(__FILE__) + '/network_description.txt')
+$skip_sender = ARGV[1].to_i == 1
+InputParser.parse_file(File.dirname(__FILE__) + '/' + ARGV[0])
 Link.give_links_to_nodes
-
 NodeCommand.trigger_actions
 Node.all.map(&:show_table)
