@@ -17,5 +17,4 @@ class NodeCommand
       @@queue.delete(job)
     end
   end
-
 end

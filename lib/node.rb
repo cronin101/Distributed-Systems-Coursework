@@ -4,8 +4,8 @@ class Node
 
   def initialize(name, addresses)
     @name = name
-    @routing_table = Hash.new
-    (@addresses = Array(addresses)).each { |local| @routing_table[local] = ['local',0] }
+    @routing_table = {}
+    (@addresses = Array(addresses)).each { |local| @routing_table[local] = ['local', 0] }
     @links = []
   end
 
@@ -26,7 +26,7 @@ class Node
   end
 
   def parens_table(table_hash) # Routing table in (addr|link|cost) format sorted with ascending addr.
-    table_hash.sort { |a, b| a[0] <=> b[0] }.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(" ")
+    table_hash.sort { |a, b| a[0] <=> b[0] }.map { |k, v| "(#{k}|#{v.first}|#{v.last})" }.join(' ')
   end
 
   def show_table
@@ -49,5 +49,4 @@ class Node
   def self.all
     @@instances
   end
-
 end

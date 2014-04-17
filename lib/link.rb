@@ -17,5 +17,4 @@ class Link
       Node.find_by_name(e2).add_link(e1)
     end
   end
-
 end
