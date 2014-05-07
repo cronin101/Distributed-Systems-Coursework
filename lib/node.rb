@@ -35,9 +35,14 @@ class Node
 
   def receive_routing_table(sender, table)
     puts "receive #{@name} #{sender} #{parens_table(table)}"
-    update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) if (@routing_table[k].nil?) || # "If there is a new destination"
-                          ((v.last + 1) < @routing_table[k].last) || # "If there is a lower cost route to an existing node"
-                          (@routing_table[k].first == sender && @routing_table[k].last != (v.last + 1))# "If recieved from N, [and N is the link]"
+    update_row = lambda { |k, v| (@routing_table[k] = [sender, v.last + 1]) if [
+        # "If there is a new destination"
+        @routing_table[k].nil?,                   
+        # "If there is a lower cost route to an existing node"
+        (v.last + 1) < @routing_table[k].last,
+        # "If recieved from N, [and N is the link]"
+        @routing_table[k].first == sender && @routing_table[k].last != (v.last + 1) 
+      ].any?
     }
     broadcast_table if table.map(&update_row).any?
   end
