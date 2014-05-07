@@ -1,6 +1,6 @@
 class InputParser
   def self.parse_file(filename)
-    File.open(filename).readlines.each { |line| parse_line(line) }
+    File.open(filename).readlines.each(&parse_line)
   end
 
   def self.parse_line(line)
